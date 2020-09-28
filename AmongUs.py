@@ -17,9 +17,14 @@ class AmongUsMod(loader.Module):
 	
 	@loader.owner
 	async def sayliecmd(self, message):
+		clrs = {'red': 1, 'lime': 2, 'green': 3, 'blue': 4, 'cyan': 5, 'brown': 6, 'purple': 7, 'pink': 8, 'orange': 9, 'yellow': 10, 'white': 11, 'black': 12}
 		"""текст или реплай"""
+		clr = randint(1,12)
 		text = utils.get_args_raw(message)
 		reply = await message.get_reply_message()
+		if text in clrs:
+			clr = clrs[text]
+			text = None
 		if not text:
 			if not reply:
 				await bruh(message, message.sender)
@@ -28,10 +33,18 @@ class AmongUsMod(loader.Module):
 				await bruh(message, reply.sender)
 				return
 			text = reply.raw_text
+		
+		if text.split(" ")[0] in clrs:
+			clr = clrs[text.split(" ")[0]]
+			text = " ".join(text.split(" ")[1:])
 			
+		if text == "colors":
+			await message.edit("Доступные цвета:\n"+("\n".join([f"• <code>{i}</code>" for i in list(clrs.keys())])))
+			return
+		
 		url = "https://raw.githubusercontent.com/KeyZenD/AmongUs/master/"
 		font = ImageFont.truetype(BytesIO(get(url+"bold.ttf").content), 60)
-		imposter = Image.open(BytesIO(get(f"{url}{randint(1,12)}.png").content))
+		imposter = Image.open(BytesIO(get(f"{url}{clr}.png").content))
 		text_ = "\n".join(["\n".join(wrap(part, 30)) for part in text.split("\n")])
 		w, h = ImageDraw.Draw(Image.new("RGB", (1,1))).multiline_textsize(text_, font, stroke_width=2)
 		text = Image.new("RGBA", (w+30, h+30))
